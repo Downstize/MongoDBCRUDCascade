@@ -1,6 +1,5 @@
 using MongoDBCRUD.Models;
 using Microsoft.Extensions.Options;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace MongoDBCRUD.Services;
