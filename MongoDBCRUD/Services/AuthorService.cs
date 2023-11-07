@@ -54,11 +54,24 @@ public class AuthorService
             var update = Builders<BooksCollection>.Update.Pull(b => b.Authors, authorName);
             var updateResult = await _booksCollection.UpdateManyAsync(bookFilter, update);
 
-            return updateResult.ModifiedCount > 0;
+            if (updateResult.ModifiedCount > 0)
+            {
+                var emptyAuthorsFilter = Builders<BooksCollection>.Filter.Eq(b => b.Authors, new List<string>());
+                var emptyAuthorsCount = await _booksCollection.CountDocumentsAsync(emptyAuthorsFilter);
+
+                if (emptyAuthorsCount > 0)
+                {
+                    var deleteEmptyAuthorsResult = await _booksCollection.DeleteManyAsync(emptyAuthorsFilter);
+                    return deleteEmptyAuthorsResult.DeletedCount > 0;
+                }
+            }
+
+            return true;
         }
 
         return false;
     }
+
 
     public async Task<Dictionary<string, int>> CountBooksPerAuthorAsync()
     {
